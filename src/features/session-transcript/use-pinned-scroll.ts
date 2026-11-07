@@ -16,6 +16,16 @@ function pinToBottom(element: HTMLElement): void {
   if (element.scrollTop !== maxTop) element.scrollTop = maxTop;
 }
 
+/**
+ * Bounded number of frames to let `content-visibility: auto` rows settle their
+ * real height after jumping to the bottom. Off-screen rows are initially sized
+ * by an intrinsic-size placeholder, so the true `scrollHeight` only emerges
+ * across several layout passes once the bottom rows force a re-render.
+ */
+const SETTLE_MAX_FRAMES = 12;
+/** Consecutive frames with an unchanged `scrollHeight` before we consider the settle done. */
+const SETTLE_STABLE_FRAMES = 2;
+
 export function usePinnedScroll(input: {
   sessionId: string | null;
   /** Changes when transcript content length/revision changes (e.g. message count + busy). */
@@ -27,6 +37,7 @@ export function usePinnedScroll(input: {
   const programmaticRef = useRef(false);
   const wasPinningRef = useRef(input.pinWhenNearBottom);
   const prependAnchorRef = useRef<{ scrollHeight: number; scrollTop: number } | null>(null);
+  const settleGenerationRef = useRef(0);
 
   const markProgrammatic = useCallback(() => {
     programmaticRef.current = true;
@@ -62,12 +73,32 @@ export function usePinnedScroll(input: {
     pinnedRef.current = true;
     markProgrammatic();
     pinToBottom(el);
-    // Rows use content-visibility, so their real height can settle after the jump.
-    requestAnimationFrame(() => {
-      if (!pinnedRef.current) return;
+    // Rows use `content-visibility: auto`, so their real height only settles once
+    // the bottom rows force a layout pass that expands the intrinsic-size
+    // placeholders above them. Pin across a bounded number of frames, stopping as
+    // soon as `scrollHeight` is stable, so we land at the true bottom.
+    const generation = ++settleGenerationRef.current;
+    let frames = 0;
+    let stableFrames = 0;
+    let previousHeight = el.scrollHeight;
+    const settle = () => {
+      if (generation !== settleGenerationRef.current) return;
+      const current = scrollRef.current;
+      if (!current || !pinnedRef.current) return;
       markProgrammatic();
-      pinToBottom(el);
-    });
+      pinToBottom(current);
+      frames += 1;
+      if (current.scrollHeight === previousHeight) {
+        stableFrames += 1;
+      } else {
+        stableFrames = 0;
+        previousHeight = current.scrollHeight;
+      }
+      if (stableFrames < SETTLE_STABLE_FRAMES && frames < SETTLE_MAX_FRAMES) {
+        requestAnimationFrame(settle);
+      }
+    };
+    requestAnimationFrame(settle);
   }, [markProgrammatic]);
 
   useLayoutEffect(() => {
