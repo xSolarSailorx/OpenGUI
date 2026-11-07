@@ -73,11 +73,11 @@ export function usePinnedScroll(input: {
   useLayoutEffect(() => {
     pinnedRef.current = true;
     prependAnchorRef.current = null;
-    const el = scrollRef.current;
-    if (!el) return;
-    markProgrammatic();
-    pinToBottom(el);
-  }, [input.sessionId, markProgrammatic]);
+    // Opening a chat (or switching sessions) should land at the true bottom. Rows
+    // use content-visibility, so their real height settles after the first paint;
+    // scrollToBottom re-pins on the following frame to absorb that growth.
+    scrollToBottom();
+  }, [input.sessionId, scrollToBottom]);
 
   useLayoutEffect(() => {
     const el = scrollRef.current;
