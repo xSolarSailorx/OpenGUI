@@ -31,6 +31,51 @@ const slots: SessionMenuSlots = {
 afterEach(cleanup);
 
 describe("Session menu content", () => {
+  test("routes archive and unarchive actions through the rendered menu item", async () => {
+    const toggleArchive = vi.fn();
+    const view = render(
+      <SessionMenuContent
+        slots={slots}
+        focusTagInput={false}
+        pinned={false}
+        archived={false}
+        onToggleArchive={toggleArchive}
+        currentColor={undefined}
+        currentTags={[]}
+        availableProjects={[]}
+        displayProjectDir={null}
+        currentProjectDir={null}
+        onTogglePin={vi.fn()}
+        onSetColor={vi.fn()}
+        onSetTags={vi.fn()}
+        onMoveToProject={vi.fn()}
+        onRemoveFromProject={null}
+      />,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "sessionMenu.archive" }));
+    expect(toggleArchive).toHaveBeenCalledOnce();
+
+    view.rerender(
+      <SessionMenuContent
+        slots={slots}
+        focusTagInput={false}
+        pinned={false}
+        archived
+        onToggleArchive={toggleArchive}
+        currentColor={undefined}
+        currentTags={[]}
+        availableProjects={[]}
+        displayProjectDir={null}
+        currentProjectDir={null}
+        onTogglePin={vi.fn()}
+        onSetColor={vi.fn()}
+        onSetTags={vi.fn()}
+        onMoveToProject={vi.fn()}
+        onRemoveFromProject={null}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "sessionMenu.unarchive" })).toBeTruthy();
+  });
   test("routes pin and every Session color choice", async () => {
     const togglePin = vi.fn();
     const setColor = vi.fn();

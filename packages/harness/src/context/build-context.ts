@@ -26,20 +26,28 @@ export function buildModelContext(entries: SessionEntry[]): ModelContextItem[] {
   const visibleEntries = (compaction ? entries.slice(compaction.index + 1) : entries).filter(
     (entry) => entry.payload.purpose !== "compaction",
   );
-  const responsesByRun = new Map<
-    string,
-    import("../models/transport.ts").ProviderResponseMetadata
-  >();
-  for (const entry of visibleEntries) {
-    if (entry.kind !== "provider_response" || typeof entry.payload.runId !== "string") continue;
-    const response = entry.payload.response;
-    if (response && typeof response === "object") {
-      responsesByRun.set(
-        entry.payload.runId,
-        response as import("../models/transport.ts").ProviderResponseMetadata,
-      );
-    }
-  }
+  // A run can contain many provider steps. Bind replay to the immediately
+  // following assistant/tool exchange, never the last response of the whole run.
+  let pendingResponse:
+    | {
+        runId: string;
+        response: import("../models/transport.ts").ProviderResponseMetadata;
+      }
+    | undefined;
+  const takeReplay = (runId: unknown) => {
+    if (!pendingResponse || pendingResponse.runId !== runId) return undefined;
+    const { response } = pendingResponse;
+    pendingResponse = undefined;
+    if (!response.replay) return undefined;
+    return {
+      ...response.replay,
+      source: response.replay.source ?? {
+        api: response.api,
+        provider: response.provider,
+        model: response.model,
+      },
+    };
+  };
   if (compaction && handoff !== null) {
     context.push({
       type: "user_message",
@@ -50,7 +58,21 @@ export function buildModelContext(entries: SessionEntry[]): ModelContextItem[] {
   }
   for (const entry of visibleEntries) {
     switch (entry.kind) {
+      case "provider_response":
+        if (
+          typeof entry.payload.runId === "string" &&
+          entry.payload.response &&
+          typeof entry.payload.response === "object"
+        ) {
+          pendingResponse = {
+            runId: entry.payload.runId,
+            response: entry.payload
+              .response as import("../models/transport.ts").ProviderResponseMetadata,
+          };
+        }
+        break;
       case "user_message":
+        pendingResponse = undefined;
         context.push({
           type: "user_message",
           text: text(entry.payload.text),
@@ -62,13 +84,13 @@ export function buildModelContext(entries: SessionEntry[]): ModelContextItem[] {
         context.push({
           type: "assistant_message",
           text: text(entry.payload.text),
-          replay:
-            typeof entry.payload.runId === "string"
-              ? responsesByRun.get(entry.payload.runId)?.replay
-              : undefined,
+          replay: takeReplay(entry.payload.runId),
         });
         break;
-      case "tool_call":
+      case "tool_call": {
+        const replay = takeReplay(entry.payload.runId);
+        // Thinking-only tool responses have no durable assistant_message entry.
+        if (replay) context.push({ type: "assistant_message", text: "", replay });
         context.push({
           type: "tool_call",
           toolCallId: text(entry.payload.toolCallId),
@@ -76,6 +98,7 @@ export function buildModelContext(entries: SessionEntry[]): ModelContextItem[] {
           input: entry.payload.input,
         });
         break;
+      }
       case "tool_result":
         context.push({
           type: "tool_result",

@@ -335,6 +335,8 @@
   "sessionMenu": {
     "pin": "Pin to top",
     "unpin": "Unpin",
+    "archive": "Archive chat",
+    "unarchive": "Unarchive chat",
     "rename": "Rename",
     "setColor": "Set color",
     "tags": "Tags",
@@ -366,6 +368,8 @@
     "shared": "Shared Session"
   },
   "projectMenu": {
+    "showArchived": "Show archived chats",
+    "hideArchived": "Hide archived chats",
     "pinProject": "Pin project",
     "unpinProject": "Unpin project",
     "copyAbsolutePath": "Copy absolute path",

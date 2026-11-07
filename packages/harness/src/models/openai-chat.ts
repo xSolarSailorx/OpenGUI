@@ -546,6 +546,9 @@ export class OpenAiChatTransport implements ModelTransport {
           }
           if (event.delta?.type === "thinking_delta" && event.delta.thinking) {
             firstDeltaMs ??= Date.now() - started;
+            const current = replayItems.at(-1);
+            if (current?.type === "thinking" && !current.encryptedContent)
+              current.text = `${current.text ?? ""}${event.delta.thinking}`;
             yield { type: "reasoning_delta", delta: event.delta.thinking };
           }
           if (event.delta?.type === "signature_delta" && event.delta.signature) {
@@ -575,7 +578,12 @@ export class OpenAiChatTransport implements ModelTransport {
         ) {
           replayItems.push({
             type: "thinking",
-            ...(event.content_block.data ? { encryptedContent: event.content_block.data } : {}),
+            ...(event.content_block.type === "thinking"
+              ? {
+                  text: event.content_block.thinking ?? "",
+                  signature: event.content_block.signature ?? "",
+                }
+              : { encryptedContent: event.content_block.data }),
           });
         }
       }
@@ -680,8 +688,8 @@ export function toAnthropicMessages(context: ModelContextItem[]) {
         if (state.type !== "thinking") return [];
         if (state.encryptedContent)
           return [{ type: "redacted_thinking", data: state.encryptedContent }];
-        if (state.signature)
-          return [{ type: "thinking", thinking: "", signature: state.signature }];
+        if (state.signature && typeof state.text === "string")
+          return [{ type: "thinking", thinking: state.text, signature: state.signature }];
         return [];
       });
       return [

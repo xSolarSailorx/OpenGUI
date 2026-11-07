@@ -71,6 +71,7 @@ export function SessionRow({
   setSessionPinned,
   setSessionColor,
   setSessionTags,
+  setSessionArchived,
   revealSessionInProject,
   moveSessionToProject,
   removeSessionFromProject,
@@ -105,6 +106,7 @@ export function SessionRow({
   setSessionPinned: (sessionId: string, pinned: boolean) => void;
   setSessionColor: (sessionId: string, color: SessionColor) => void;
   setSessionTags: (sessionId: string, tags: string[]) => void;
+  setSessionArchived: (sessionId: string, archived: boolean) => void;
   revealSessionInProject: (directory: string) => void;
   moveSessionToProject: (sessionId: string, projectDirectory: string) => void | Promise<void>;
   removeSessionFromProject: (sessionId: string) => void | Promise<void>;
@@ -166,6 +168,8 @@ export function SessionRow({
       displayProjectDir={meta?.displayProjectDir ?? null}
       currentProjectDir={currentProjectDir}
       pinned={isPinned}
+      archived={!!meta?.archived}
+      onToggleArchive={() => setSessionArchived(session.id, !meta?.archived)}
       onTogglePin={() => setSessionPinned(session.id, !isPinned)}
       onSetColor={(color) => setSessionColor(session.id, color)}
       onSetTags={(newTags) => setSessionTags(session.id, newTags)}
@@ -198,6 +202,8 @@ export function SessionRow({
           actions={
             <SessionItemMenu
               pinned={isPinned}
+              archived={!!meta?.archived}
+              onToggleArchive={() => setSessionArchived(session.id, !meta?.archived)}
               currentColor={meta?.color}
               currentTags={tags}
               availableProjects={availableProjectDirectories}

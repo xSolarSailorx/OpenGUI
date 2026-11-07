@@ -40,6 +40,11 @@ function workspace(id: string, overrides: Partial<Workspace> = {}): Workspace {
 }
 
 describe("session persistence", () => {
+  test("persists archive state as session metadata", () => {
+    persistSessionMetaMap({ archived: { archived: true } });
+
+    expect(getSessionMetaMap()).toEqual({ archived: { archived: true } });
+  });
   test("prunes empty metadata while preserving explicit null selections", () => {
     persistSessionMetaMap({
       empty: {},
@@ -66,11 +71,13 @@ describe("project persistence", () => {
       empty: {},
       pinned: { pinnedAt: "2025-01-01T00:00:00.000Z" },
       hidden: { hidden: true },
+      archivePreference: { showArchivedSessions: true },
     });
 
     expect(getProjectMetaMap()).toEqual({
       pinned: { pinnedAt: "2025-01-01T00:00:00.000Z" },
       hidden: { hidden: true },
+      archivePreference: { showArchivedSessions: true },
     });
     expect(localStorage.getItem(STORAGE_KEYS.PROJECT_META)).not.toBeNull();
   });

@@ -2,6 +2,7 @@ import { describe, expect, test } from "vite-plus/test";
 import type { Session } from "@/hooks/agent-state-types";
 import {
   shouldKeepSessionOutOfProjectGroups,
+  shouldShowSessionInProjectGroups,
   shouldShowSessionInChatList,
   sessionMatchesSidebarSearch,
   sortSessionsByResponseState,
@@ -143,6 +144,16 @@ describe("shouldShowSessionInChatList", () => {
         isDefaultChatDirectory: () => false,
       }),
     ).toBe(true);
+  });
+});
+
+describe("shouldShowSessionInProjectGroups", () => {
+  test("hides archived sessions unless the project explicitly shows archived chats", () => {
+    const archived = { archived: true };
+
+    expect(shouldShowSessionInProjectGroups(archived, false)).toBe(false);
+    expect(shouldShowSessionInProjectGroups(archived, true)).toBe(true);
+    expect(shouldShowSessionInProjectGroups(undefined, false)).toBe(true);
   });
 });
 

@@ -269,7 +269,14 @@ test("provider replay metadata survives restart and deltas remain ordered", asyn
     // drain
   }
   expect(requests[0]?.context).toContainEqual(
-    expect.objectContaining({ type: "assistant_message", text: "AB", replay }),
+    expect.objectContaining({
+      type: "assistant_message",
+      text: "AB",
+      replay: {
+        ...replay,
+        source: { api: "openai-responses", provider: "fixture", model: "fixture-model" },
+      },
+    }),
   );
   await restarted.close();
 });

@@ -2,11 +2,15 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 export interface ProviderReplayState {
+  /** Signed replay belongs to the originating provider/model, not the current selection. */
+  source?: { api: string; provider: string; model: string };
   /** Opaque provider output items required for stateless multi-turn replay. */
   items?: Array<{
     type: "reasoning" | "thinking" | "text";
     id?: string;
     signature?: string;
+    /** Exact signed thinking text. Never trim, summarize, or replace with display deltas. */
+    text?: string;
     encryptedContent?: string;
   }>;
 }

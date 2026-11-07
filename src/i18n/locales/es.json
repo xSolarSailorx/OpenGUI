@@ -335,6 +335,8 @@
   "sessionMenu": {
     "pin": "Fijar arriba",
     "unpin": "Desfijar",
+    "archive": "Archivar chat",
+    "unarchive": "Restaurar chat",
     "rename": "Renombrar",
     "setColor": "Definir color",
     "tags": "Etiquetas",
@@ -366,6 +368,8 @@
     "shared": "Sesión compartida"
   },
   "projectMenu": {
+    "showArchived": "Mostrar chats archivados",
+    "hideArchived": "Ocultar chats archivados",
     "pinProject": "Fijar proyecto",
     "unpinProject": "Desfijar proyecto",
     "copyAbsolutePath": "Copiar ruta absoluta",

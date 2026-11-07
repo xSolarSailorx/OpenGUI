@@ -7,7 +7,7 @@ import type { ConnectionStatus } from "@/types/connection";
 import type { Workspace } from "@/types/workspace";
 import { parseProjectKey } from "@/hooks/agent-session-utils";
 import { getSessionExecutionDirectory } from "@/hooks/agent-session-utils";
-import { isSidebarProjectHidden } from "@/lib/persistence/project";
+import { getSidebarProjectMeta, isSidebarProjectHidden } from "@/lib/persistence/project";
 import { buildSidebarOrderedRootProjectDirectories } from "@/lib/sidebar-project-entries";
 
 const EMPTY_SESSION_ID_SET: ReadonlySet<string> = new Set();
@@ -18,6 +18,13 @@ function getSidebarSessionSortTime(session: Session, sessionMeta: SessionMetaMap
     return meta.sidebarMovedAt;
   }
   return session.time?.updated ?? session.time?.created ?? 0;
+}
+
+export function shouldShowSessionInProjectGroups(
+  meta: SessionMetaMap[string] | undefined,
+  showArchived: boolean,
+) {
+  return !meta?.archived || showArchived;
 }
 
 export function shouldShowSessionInChatList({
@@ -203,6 +210,19 @@ export function useSidebarModel({
       ) {
         continue;
       }
+      const projectMetaForDirectory = getSidebarProjectMeta(
+        projectMeta,
+        activeWorkspace?.id,
+        displayDirectory,
+      );
+      if (
+        !shouldShowSessionInProjectGroups(
+          meta,
+          projectMetaForDirectory?.showArchivedSessions === true,
+        )
+      ) {
+        continue;
+      }
       if (!groups.has(displayDirectory)) groups.set(displayDirectory, []);
       groups.get(displayDirectory)?.push(session);
     }
@@ -219,6 +239,7 @@ export function useSidebarModel({
     detachedProject,
     activeWorkspace,
     availableProjectDirectories,
+    projectMeta,
     sessionMeta,
     sortSidebarSessions,
   ]);
@@ -232,12 +253,14 @@ export function useSidebarModel({
     () =>
       showChatsSection
         ? sortSidebarSessions(
-            sessions.filter((session) =>
-              shouldShowSessionInChatList({
-                session,
-                meta: sessionMeta[session.id],
-                isDefaultChatDirectory,
-              }),
+            sessions.filter(
+              (session) =>
+                !sessionMeta[session.id]?.archived &&
+                shouldShowSessionInChatList({
+                  session,
+                  meta: sessionMeta[session.id],
+                  isDefaultChatDirectory,
+                }),
             ),
           )
         : [],

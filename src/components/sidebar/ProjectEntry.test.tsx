@@ -57,6 +57,7 @@ function props(
     setActiveTarget: vi.fn(),
     closeMobileSidebar: vi.fn(),
     setProjectPinned: vi.fn(),
+    setProjectShowArchivedSessions: vi.fn(),
     removeProject: vi.fn(),
     closeOtherProjects: vi.fn(),
     setVisibleByProject: vi.fn(),
