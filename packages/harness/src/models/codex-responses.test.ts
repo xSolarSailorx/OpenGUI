@@ -47,6 +47,32 @@ describe("codexResponseEvents", () => {
 });
 
 describe("codexInput", () => {
+  test("includes the required summary field when replaying encrypted reasoning", () => {
+    expect(
+      codexInput([
+        {
+          type: "assistant_message",
+          text: "A previous answer.",
+          replay: {
+            items: [{ type: "reasoning", id: "rs_1", encryptedContent: "opaque-reasoning" }],
+          },
+        },
+      ]),
+    ).toEqual([
+      {
+        type: "reasoning",
+        id: "rs_1",
+        encrypted_content: "opaque-reasoning",
+        summary: [],
+      },
+      {
+        type: "message",
+        role: "assistant",
+        content: [{ type: "output_text", text: "A previous answer." }],
+      },
+    ]);
+  });
+
   test("injects image tool results as Responses image content", () => {
     expect(
       codexInput([

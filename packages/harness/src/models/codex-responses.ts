@@ -67,7 +67,14 @@ export function codexInput(context: ModelContextItem[]) {
       return [
         ...(item.replay?.items ?? []).flatMap<Record<string, unknown>>((replay) =>
           replay.type === "reasoning" && replay.encryptedContent
-            ? [{ type: "reasoning", id: replay.id, encrypted_content: replay.encryptedContent }]
+            ? [
+                {
+                  type: "reasoning",
+                  id: replay.id,
+                  encrypted_content: replay.encryptedContent,
+                  summary: [],
+                },
+              ]
             : [],
         ),
         {
