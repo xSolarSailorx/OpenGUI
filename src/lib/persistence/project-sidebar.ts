@@ -2,6 +2,7 @@ import { makeProjectKey } from "@/hooks/agent-session-utils";
 export interface SidebarProjectMetaLike {
   pinnedAt?: string | null;
   hidden?: boolean | null;
+  showArchivedSessions?: boolean | null;
 }
 export type SidebarProjectMetaMapLike = Record<string, SidebarProjectMetaLike | undefined>;
 

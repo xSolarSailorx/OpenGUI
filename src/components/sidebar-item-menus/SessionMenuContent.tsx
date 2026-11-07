@@ -1,4 +1,6 @@
 import {
+  Archive,
+  ArchiveRestore,
   Check,
   FolderOpen,
   FolderX,
@@ -20,6 +22,8 @@ import { SessionColorPicker } from "./SessionColorPicker";
 
 export interface SessionMenuProps {
   pinned: boolean;
+  archived?: boolean;
+  onToggleArchive?: () => void;
   currentColor: SessionColor | undefined;
   currentTags: string[];
   availableProjects: string[];
@@ -147,6 +151,20 @@ export function SessionMenuContent({
         props.onTogglePin,
       )}
       {slots.separator("after-pin")}
+      {props.onToggleArchive &&
+        slots.item(
+          "archive",
+          <>
+            {props.archived ? (
+              <ArchiveRestore className="size-4" />
+            ) : (
+              <Archive className="size-4" />
+            )}
+            <span>{t(props.archived ? "sessionMenu.unarchive" : "sessionMenu.archive")}</span>
+          </>,
+          props.onToggleArchive,
+        )}
+      {props.onToggleArchive && slots.separator("after-archive")}
       {props.onRename &&
         slots.item(
           "rename",

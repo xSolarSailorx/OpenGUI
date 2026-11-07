@@ -159,10 +159,21 @@ function emptyUsage() {
   };
 }
 
-function replayContent(item: Extract<ModelContextItem, { type: "assistant_message" }>) {
-  const replay = item.replay?.items ?? [];
+function replayContent(
+  item: Extract<ModelContextItem, { type: "assistant_message" }>,
+  model: Model<Api>,
+) {
+  const source = item.replay?.source;
+  const matches =
+    !source ||
+    (source.api === model.api && source.provider === model.provider && source.model === model.id);
+  const replay = matches ? (item.replay?.items ?? []) : [];
   const thinking = replay.flatMap((state) => {
-    if (state.type === "reasoning" && state.encryptedContent) {
+    if (
+      state.type === "reasoning" &&
+      state.encryptedContent &&
+      (model.api === "openai-responses" || model.api === "openai-codex-responses")
+    ) {
       return [
         {
           type: "thinking" as const,
@@ -171,11 +182,15 @@ function replayContent(item: Extract<ModelContextItem, { type: "assistant_messag
         },
       ];
     }
-    if (state.type === "thinking" && (state.signature || state.encryptedContent)) {
+    if (
+      state.type === "thinking" &&
+      model.api === "anthropic-messages" &&
+      (state.encryptedContent || (state.signature && typeof state.text === "string"))
+    ) {
       return [
         {
           type: "thinking" as const,
-          thinking: "",
+          thinking: state.text ?? "",
           thinkingSignature: state.encryptedContent ?? state.signature,
           ...(state.encryptedContent ? { redacted: true } : {}),
         },
@@ -252,7 +267,7 @@ export function toPiContext(request: ModelRequest, model: Model<Api>, timestamp 
       flushToolExchange();
       messages.push({
         role: "assistant",
-        content: replayContent(item),
+        content: replayContent(item, model),
         api: model.api,
         provider: model.provider,
         model: model.id,
@@ -293,14 +308,16 @@ function replayFrom(message: AssistantMessage): ProviderReplayState | undefined 
         items.push(
           block.redacted
             ? { type: "thinking", encryptedContent: block.thinkingSignature }
-            : { type: "thinking", signature: block.thinkingSignature },
+            : { type: "thinking", signature: block.thinkingSignature, text: block.thinking },
         );
       }
     } else if (block.type === "text" && block.textSignature) {
       items.push({ type: "text", signature: block.textSignature });
     }
   }
-  return items.length > 0 ? { items } : undefined;
+  return items.length > 0
+    ? { source: { api: message.api, provider: message.provider, model: message.model }, items }
+    : undefined;
 }
 
 function normalizedStopReason(

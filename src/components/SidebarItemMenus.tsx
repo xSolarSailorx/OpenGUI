@@ -86,6 +86,8 @@ export function SessionItemMenu(props: SessionMenuProps) {
 type ProjectMenuContentProps = {
   kind: "dropdown" | "context";
   pinned: boolean;
+  showArchivedSessions?: boolean;
+  onToggleShowArchivedSessions?: () => void;
   collapsed: boolean;
   canCreateSession: boolean;
   onTogglePin: () => void;
@@ -102,6 +104,8 @@ type ProjectMenuContentProps = {
 export function ProjectMenuContent({
   kind,
   pinned,
+  showArchivedSessions,
+  onToggleShowArchivedSessions,
   collapsed,
   canCreateSession,
   onTogglePin,
@@ -162,6 +166,18 @@ export function ProjectMenuContent({
           <Copy className="size-4" />
           <span>{t("projectMenu.copyAbsolutePath")}</span>
         </DropdownMenuItem>
+        {onToggleShowArchivedSessions && (
+          <DropdownMenuItem
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleShowArchivedSessions();
+            }}
+          >
+            <span>
+              {t(showArchivedSessions ? "projectMenu.hideArchived" : "projectMenu.showArchived")}
+            </span>
+          </DropdownMenuItem>
+        )}
         {isLocalWorkspace && (
           <>
             <DropdownMenuItem
@@ -245,6 +261,16 @@ export function ProjectMenuContent({
         {pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
         <span>{pinned ? t("projectMenu.unpinProject") : t("projectMenu.pinProject")}</span>
       </ContextMenu.Item>
+      {onToggleShowArchivedSessions && (
+        <ContextMenu.Item
+          className="flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"
+          onClick={onToggleShowArchivedSessions}
+        >
+          <span>
+            {t(showArchivedSessions ? "projectMenu.hideArchived" : "projectMenu.showArchived")}
+          </span>
+        </ContextMenu.Item>
+      )}
       <ContextMenu.Separator className="-mx-1 my-1 h-px bg-muted" />
       <ContextMenu.Item
         className="flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"

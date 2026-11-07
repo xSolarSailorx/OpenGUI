@@ -1227,6 +1227,16 @@ function HostProviderBody({
           return next;
         });
       },
+      setSessionArchived: (sessionId, archived) => {
+        setSessionMeta((current) => {
+          const next = {
+            ...current,
+            [sessionId]: { ...current[sessionId], archived: archived || undefined },
+          };
+          persistSessionMetaMap(next);
+          return next;
+        });
+      },
       setSessionPinned: (sessionId, pinned) => {
         setSessionMeta((current) => {
           const next = {
@@ -1268,6 +1278,20 @@ function HostProviderBody({
             [projectKey]: {
               ...current[projectKey],
               pinnedAt: pinned ? new Date().toISOString() : undefined,
+            },
+          };
+          persistProjectMetaMap(next);
+          return next;
+        });
+      },
+      setProjectShowArchivedSessions: (directory, show) => {
+        const projectKey = makeProjectKey(activeWorkspaceId, directory);
+        setProjectMeta((current) => {
+          const next = {
+            ...current,
+            [projectKey]: {
+              ...current[projectKey],
+              showArchivedSessions: show || undefined,
             },
           };
           persistProjectMetaMap(next);

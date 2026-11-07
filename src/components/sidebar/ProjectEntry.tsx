@@ -23,7 +23,7 @@ import { ProjectItemMenu, ProjectMenuContent } from "@/components/SidebarItemMen
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 import { makeProjectKey } from "@/hooks/agent-session-utils";
-import { isSidebarProjectPinned } from "@/lib/persistence/project";
+import { getSidebarProjectMeta, isSidebarProjectPinned } from "@/lib/persistence/project";
 import { SidebarRow } from "./SidebarRow";
 
 export function ProjectEntry({
@@ -48,6 +48,7 @@ export function ProjectEntry({
   setActiveTarget,
   closeMobileSidebar,
   setProjectPinned,
+  setProjectShowArchivedSessions,
   removeProject,
   closeOtherProjects,
   setVisibleByProject,
@@ -79,6 +80,7 @@ export function ProjectEntry({
   setActiveTarget: (directory: string, options?: { newChat?: boolean }) => void;
   closeMobileSidebar: () => void;
   setProjectPinned: (directory: string, pinned: boolean) => void;
+  setProjectShowArchivedSessions: (directory: string, show: boolean) => void;
   removeProject: (directory: string) => void | Promise<void>;
   closeOtherProjects: (directory: string) => void | Promise<void>;
   setVisibleByProject: React.Dispatch<React.SetStateAction<Record<string, number>>>;
@@ -95,12 +97,17 @@ export function ProjectEntry({
   const canShowLess = visibleCount > SESSION_PAGE_SIZE;
   const normalizedDirectory = normalizeProjectPath(directory);
   const isPinned = isSidebarProjectPinned(projectMeta, workspaceId, directory);
+  const showArchivedSessions =
+    getSidebarProjectMeta(projectMeta, workspaceId, directory)?.showArchivedSessions === true;
   const canCloseOtherProjects = availableProjectDirectories.some(
     (projectDirectory) => normalizeProjectPath(projectDirectory) !== normalizedDirectory,
   );
 
   const projectMenuProps: React.ComponentProps<typeof ProjectItemMenu> = {
     pinned: isPinned,
+    showArchivedSessions,
+    onToggleShowArchivedSessions: () =>
+      setProjectShowArchivedSessions(directory, !showArchivedSessions),
     collapsed: isCollapsed,
     canCreateSession: isProjectConnected,
     onTogglePin: () => setProjectPinned(directory, !isPinned),

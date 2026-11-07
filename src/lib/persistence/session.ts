@@ -14,6 +14,7 @@ export type SessionColor =
   | null;
 
 export interface SessionMeta {
+  archived?: boolean;
   color?: SessionColor;
   tags?: string[];
   pinnedAt?: string;
@@ -35,6 +36,7 @@ export function getSessionMetaMap(): SessionMetaMap {
 export function persistSessionMetaMap(meta: SessionMetaMap): void {
   persistJsonRecord(STORAGE_KEYS.SESSION_META, meta, (value) =>
     Boolean(
+      value.archived === true ||
       value.color ||
       value.tags?.length ||
       value.pinnedAt?.length ||

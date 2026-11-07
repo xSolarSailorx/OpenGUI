@@ -149,10 +149,12 @@ export interface ActionsContextValue {
   forkFromMessage: (messageID: string) => Promise<void>;
   setSessionColor: (sessionId: string, color: SessionColor) => void;
   setSessionTags: (sessionId: string, tags: string[]) => void;
+  setSessionArchived: (sessionId: string, archived: boolean) => void;
   setSessionPinned: (sessionId: string, pinned: boolean) => void;
   moveSessionToProject: (sessionId: string, directory: string) => Promise<void>;
   removeSessionFromProject: (sessionId: string) => Promise<void>;
   setProjectPinned: (directory: string, pinned: boolean) => void;
+  setProjectShowArchivedSessions: (directory: string, show: boolean) => void;
   createWorkspace: (input: { name: string; serverUrl: string; authToken?: string }) => void;
   updateWorkspace: (
     workspaceId: string,

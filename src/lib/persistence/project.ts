@@ -5,6 +5,7 @@ export * from "./project-sidebar";
 export interface ProjectMeta {
   pinnedAt?: string;
   hidden?: boolean;
+  showArchivedSessions?: boolean;
 }
 export type ProjectMetaMap = Record<string, ProjectMeta>;
 
@@ -14,6 +15,6 @@ export function getProjectMetaMap(): ProjectMetaMap {
 
 export function persistProjectMetaMap(meta: ProjectMetaMap): void {
   persistJsonRecord(STORAGE_KEYS.PROJECT_META, meta, (value) =>
-    Boolean(value.pinnedAt?.length || value.hidden === true),
+    Boolean(value.pinnedAt?.length || value.hidden === true || value.showArchivedSessions === true),
   );
 }

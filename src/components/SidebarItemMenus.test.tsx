@@ -46,11 +46,14 @@ describe("Project menu", () => {
       collapse: vi.fn(),
       remove: vi.fn(),
       closeOthers: vi.fn(),
+      showArchived: vi.fn(),
     };
     render(
       <ProjectMenuContent
         kind="dropdown"
         pinned={false}
+        showArchivedSessions={false}
+        onToggleShowArchivedSessions={actions.showArchived}
         collapsed={false}
         canCreateSession
         onTogglePin={actions.pin}
@@ -68,6 +71,7 @@ describe("Project menu", () => {
       "projectMenu.newSession",
       "projectMenu.collapseProject",
       "projectMenu.pinProject",
+      "projectMenu.showArchived",
       "projectMenu.copyAbsolutePath",
       "projectMenu.openInFileBrowser",
       "projectMenu.openInTerminal",
@@ -79,6 +83,7 @@ describe("Project menu", () => {
     expect(actions.create).toHaveBeenCalled();
     expect(actions.collapse).toHaveBeenCalled();
     expect(actions.pin).toHaveBeenCalled();
+    expect(actions.showArchived).toHaveBeenCalled();
     expect(fixture.copy).toHaveBeenCalledWith("/work/Alpha");
     expect(fixture.fileBrowser).toHaveBeenCalledWith("/work/Alpha", "");
     expect(fixture.terminal).toHaveBeenCalledWith("/work/Alpha", "");

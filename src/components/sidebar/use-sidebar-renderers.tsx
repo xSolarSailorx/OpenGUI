@@ -41,12 +41,14 @@ interface UseSidebarRenderersArgs {
   setActiveTarget: (directory: string, options?: { newChat?: boolean }) => void;
   setEditValue: (value: string) => void;
   setProjectPinned: (directory: string, pinned: boolean) => void;
+  setProjectShowArchivedSessions: (directory: string, show: boolean) => void;
   setProjectPopover: React.Dispatch<
     React.SetStateAction<{ directory: string; top: number } | null>
   >;
   setSessionColor: (sessionId: string, color: SessionColor) => void;
   setSessionPinned: (sessionId: string, pinned: boolean) => void;
   setSessionTags: (sessionId: string, tags: string[]) => void;
+  setSessionArchived: (sessionId: string, archived: boolean) => void;
   setVisibleByProject: React.Dispatch<React.SetStateAction<Record<string, number>>>;
   sidebarState: "expanded" | "collapsed";
   startEditing: (sessionId: string, currentTitle: string) => void;
@@ -93,8 +95,10 @@ export function useSidebarRenderers(args: UseSidebarRenderersArgs) {
     setActiveTarget,
     setEditValue,
     setProjectPinned,
+    setProjectShowArchivedSessions,
     setProjectPopover,
     setSessionColor,
+    setSessionArchived,
     setSessionPinned,
     setSessionTags,
     setVisibleByProject,
@@ -145,6 +149,7 @@ export function useSidebarRenderers(args: UseSidebarRenderersArgs) {
       setSessionPinned={setSessionPinned}
       setSessionColor={setSessionColor}
       setSessionTags={setSessionTags}
+      setSessionArchived={setSessionArchived}
       revealSessionInProject={revealSessionInProject}
       moveSessionToProject={moveSessionToProject}
       removeSessionFromProject={removeSessionFromProject}
@@ -188,6 +193,7 @@ export function useSidebarRenderers(args: UseSidebarRenderersArgs) {
       setActiveTarget={setActiveTarget}
       closeMobileSidebar={closeMobileSidebar}
       setProjectPinned={setProjectPinned}
+      setProjectShowArchivedSessions={setProjectShowArchivedSessions}
       removeProject={removeProject}
       closeOtherProjects={closeOtherProjects}
       setVisibleByProject={setVisibleByProject}
