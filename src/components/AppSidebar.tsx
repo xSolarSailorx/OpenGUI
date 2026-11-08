@@ -505,12 +505,24 @@ export function AppSidebar({
                   manageableSessions.length > 0 &&
                   manageableSessions.every((session) => !!sessionMeta[session.id]?.pinnedAt)
                 }
+                allArchived={
+                  manageableSessions.length > 0 &&
+                  manageableSessions.every((session) => !!sessionMeta[session.id]?.archived)
+                }
                 projects={availableProjectDirectories}
                 onTogglePin={() => {
                   const unpin =
                     manageableSessions.length > 0 &&
                     manageableSessions.every((session) => !!sessionMeta[session.id]?.pinnedAt);
                   for (const session of manageableSessions) setSessionPinned(session.id, !unpin);
+                }}
+                onToggleArchive={() => {
+                  const unarchive =
+                    manageableSessions.length > 0 &&
+                    manageableSessions.every((session) => !!sessionMeta[session.id]?.archived);
+                  for (const session of manageableSessions)
+                    setSessionArchived(session.id, !unarchive);
+                  clearSessionSelection();
                 }}
                 onSetColor={(color) => {
                   for (const session of manageableSessions) setSessionColor(session.id, color);

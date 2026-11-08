@@ -337,6 +337,8 @@
     "unpin": "Unpin",
     "archive": "Archive chat",
     "unarchive": "Unarchive chat",
+    "archiveSelected": "Archive chats",
+    "unarchiveSelected": "Unarchive chats",
     "rename": "Rename",
     "setColor": "Set color",
     "tags": "Tags",

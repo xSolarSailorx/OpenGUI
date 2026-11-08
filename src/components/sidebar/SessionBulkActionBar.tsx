@@ -1,4 +1,14 @@
-import { Check, FolderInput, Palette, Pin, Tag, Trash2, X } from "lucide-react";
+import {
+  Archive,
+  ArchiveRestore,
+  Check,
+  FolderInput,
+  Palette,
+  Pin,
+  Tag,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SessionColor } from "@/lib/persistence";
 import { getProjectName } from "@/lib/path";
@@ -66,10 +76,12 @@ function BulkIconButton({
 export function SessionBulkActionBar({
   count,
   allPinned,
+  allArchived,
   canManage,
   canDelete,
   projects,
   onTogglePin,
+  onToggleArchive,
   onSetColor,
   onAddTag,
   onMove,
@@ -78,10 +90,12 @@ export function SessionBulkActionBar({
 }: {
   count: number;
   allPinned: boolean;
+  allArchived: boolean;
   canManage: boolean;
   canDelete: boolean;
   projects: string[];
   onTogglePin: () => void;
+  onToggleArchive: () => void;
   onSetColor: (color: SessionColor) => void;
   onAddTag: () => void;
   onMove: (directory: string) => void;
@@ -137,6 +151,15 @@ export function SessionBulkActionBar({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <BulkIconButton
+          label={
+            allArchived ? t("sessionMenu.unarchiveSelected") : t("sessionMenu.archiveSelected")
+          }
+          disabled={!canManage}
+          onClick={onToggleArchive}
+        >
+          {allArchived ? <ArchiveRestore className="size-3.5" /> : <Archive className="size-3.5" />}
+        </BulkIconButton>
         <BulkIconButton label={t("sessionMenu.tags")} disabled={!canManage} onClick={onAddTag}>
           <Tag className="size-3.5" />
         </BulkIconButton>

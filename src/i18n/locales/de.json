@@ -337,6 +337,8 @@
     "unpin": "Lösen",
     "archive": "Chat archivieren",
     "unarchive": "Chat aus Archiv holen",
+    "archiveSelected": "Chats archivieren",
+    "unarchiveSelected": "Chats aus Archiv holen",
     "rename": "Umbenennen",
     "setColor": "Farbe setzen",
     "tags": "Tags",
