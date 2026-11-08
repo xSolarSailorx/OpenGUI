@@ -824,4 +824,38 @@ describe("HostProvider render integration", () => {
       )[projectKey],
     ).toBeUndefined();
   });
+
+  test("bulk archive accumulates archived flags for every selected session in sessionMeta and persisted SESSION_META", async () => {
+    const other1 = { ...summary, id: "session-2", title: "Second" };
+    const other2 = { ...summary, id: "session-3", title: "Third" };
+    host.listSessions.mockResolvedValue([summary, other1, other2]);
+
+    render(
+      <HostProvider>
+        <Probe />
+      </HostProvider>,
+    );
+    await waitFor(() => expect(workspace.bootState).toBe("ready"));
+
+    act(() => {
+      actions.setSessionArchived("session-1", true);
+      actions.setSessionArchived("session-2", true);
+      actions.setSessionArchived("session-3", true);
+    });
+
+    for (const id of ["session-1", "session-2", "session-3"]) {
+      expect(state.sessionMeta[id]?.archived).toBe(true);
+    }
+
+    const persistedMeta = JSON.parse(
+      persisted.values.get(STORAGE_KEYS.SESSION_META) ?? "{}",
+    ) as Record<string, { archived?: boolean }>;
+    expect(persistedMeta).toEqual(
+      expect.objectContaining({
+        "session-1": expect.objectContaining({ archived: true }),
+        "session-2": expect.objectContaining({ archived: true }),
+        "session-3": expect.objectContaining({ archived: true }),
+      }),
+    );
+  });
 });
