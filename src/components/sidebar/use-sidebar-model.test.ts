@@ -148,12 +148,16 @@ describe("shouldShowSessionInChatList", () => {
 });
 
 describe("shouldShowSessionInProjectGroups", () => {
-  test("hides archived sessions unless the project explicitly shows archived chats", () => {
+  test("shows archived and non-archived sessions in mutually exclusive views", () => {
     const archived = { archived: true };
+    const notArchived = { archived: false };
 
     expect(shouldShowSessionInProjectGroups(archived, false)).toBe(false);
     expect(shouldShowSessionInProjectGroups(archived, true)).toBe(true);
+    expect(shouldShowSessionInProjectGroups(notArchived, false)).toBe(true);
+    expect(shouldShowSessionInProjectGroups(notArchived, true)).toBe(false);
     expect(shouldShowSessionInProjectGroups(undefined, false)).toBe(true);
+    expect(shouldShowSessionInProjectGroups(undefined, true)).toBe(false);
   });
 });
 

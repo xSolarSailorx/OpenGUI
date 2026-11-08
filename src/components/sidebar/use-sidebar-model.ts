@@ -24,7 +24,7 @@ export function shouldShowSessionInProjectGroups(
   meta: SessionMetaMap[string] | undefined,
   showArchived: boolean,
 ) {
-  return !meta?.archived || showArchived;
+  return (meta?.archived ?? false) === showArchived;
 }
 
 export function shouldShowSessionInChatList({
